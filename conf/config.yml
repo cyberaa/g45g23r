@@ -1,5 +1,18 @@
 ---
+  app:
+    version: '0.1.0'
+    baseuri: '/api/v1'
   gunicorn:
-    bind: 0.0.0.0:8000
-    workers: 1
+    bind: 0.0.0.0:9000
+    workers: 4
     timeout: 30
+    keepalive: 3
+  logging:
+    level: INFO
+    filename: './api.log'
+    format: '[%(asctime)s] [%(process)d] [%(levelname)s] %(message)s'
+  database:
+    host: test
+    user: root
+    pass: enumbra
+    database: enumbra

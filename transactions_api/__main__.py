@@ -1,53 +1,24 @@
-import aumbry
+#! /usr/bin/env python3
+# -*- coding: utf-8 -*-.
+import sys
+import logging
+from middleware.logging import LoggingMiddleware
 from app import TransactionAPI
-from gunicorn.app.base import BaseApplication
-from gunicorn.workers.sync import SyncWorker
-from config import Config
+from helpers import setup_logging, setup_config
+from server import GunicornApp
+
+CONFIG_FILE = './conf/config.yml'
 
 
-
-class ApiWorker(SyncWorker):
-    def handle_quit(self, sig, frame):
-        self.app.application.stop(sig)
-        super(ApiWorker, self).handle_quit(sig, frame)
-
-    def run(self):
-        self.app.application.start()
-        super(ApiWorker, self).run()
-
-
-class GunicornApp(BaseApplication):
-    """ Custom Gunicorn application
-
-    This allows for us to load gunicorn settings from an external source
-    """
-    def __init__(self, app, options=None):
-        self.options = options or {}
-        self.application = app
-        super(GunicornApp, self).__init__()
-
-    def load_config(self):
-        for key, value in self.options.items():
-            self.cfg.set(key.lower(), value)
-
-        self.cfg.set('worker_class', 'transactions_api.__main__.ApiWorker')
-
-    def load(self):
-        return self.application
+config = setup_config(CONFIG_FILE)
+log = setup_logging(config.logging)
 
 
 def main():
-    #docopt(__doc__)
-
-    cfg = aumbry.load(
-        aumbry.FILE,
-        Config,
-        {
-            'CONFIG_FILE_PATH': './conf/config.yml'
-        }
-    )
-
-    api_app = TransactionAPI(cfg)
-    gunicorn_app = GunicornApp(api_app, cfg.gunicorn)
-
-    gunicorn_app.run()
+    if config and log:
+        api = TransactionAPI(config, middleware=[LoggingMiddleware(log)])
+        app = GunicornApp(app=api, options=config.gunicorn)
+        app.run()
+    else:
+        logging.error("Couldn't start app, config load failed at" + CONFIG_FILE)
+        sys.exit(1)

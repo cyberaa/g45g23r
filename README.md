@@ -11,7 +11,7 @@ gunicorn transactions_api.__main__:main
 ```
 
 
-## Routes
+## Routes(OLD)
 * **GET**  /transactions
 * **GET**  /transactions/<GUID>
 * **GET**  /transactions/wallet/btc/<ADDRESS>
@@ -21,3 +21,12 @@ gunicorn transactions_api.__main__:main
 * **GET**  /account/wallet/btc/<ADDRESS>
 * **GET**  /account/wallet/eth/<ADDRESS>
 
+
+## Routes(NEW)
+* **GET**  /transactions
+* **GET**  /transactions/<GUID>
+* **GET**  /transactions/wallet/<ADDRESS>
+* **POST** /trasactions/wallet/
+* **GET**  /account/wallet/<ADDRESS>
+* **GET**  /utils/info
+* **GET**  /transactions/total
